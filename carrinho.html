@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Carrinho - HOMEDECOR</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      background-color: #f5f5f5;
+      min-height: 100vh;
+    }
+    
+    #root {
+      width: 100%;
+      min-height: 100vh;
+      margin: 0 auto;
+      background: white;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    /* Desktop: Layout centralizado como celular */
+    @media (min-width: 768px) {
+      body {
+        display: flex;
+        justify-content: center;
+        padding: 20px 0;
+      }
+      
+      #root {
+        max-width: 480px;
+        box-shadow: 0 0 30px rgba(0,0,0,0.15);
+        min-height: 100vh;
+        background: white;
+      }
+    }
+    
+    /* Mobile: 100% responsivo */
+    @media (max-width: 767px) {
+      body {
+        background-color: white;
+      }
+      
+      #root {
+        width: 100%;
+        max-width: 100%;
+      }
+    }
+
+    /* Checkbox personalizado - CIRCULAR */
+    .custom-checkbox {
+      appearance: none;
+      width: 22px;
+      height: 22px;
+      border: 2px solid #d1d5db;
+      border-radius: 50%;
+      cursor: pointer;
+      position: relative;
+      flex-shrink: 0;
+      background: white;
+    }
+    
+    .custom-checkbox:checked {
+      background-color: #FE2C55;
+      border-color: #FE2C55;
+    }
+    
+    .custom-checkbox:checked::after {
+      content: '✓';
+      position: absolute;
+      color: white;
+      font-size: 13px;
+      font-weight: bold;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    /* Botão de quantidade */
+    .quantity-btn {
+      width: 26px;
+      height: 26px;
+      border: 1px solid #E5E5E5;
+      background: #FFFFFF;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      user-select: none;
+      font-size: 16px;
+      font-weight: 300;
+      line-height: 1;
+      color: #000000;
+    }
+
+    .quantity-btn:active {
+      background: #f9fafb;
+    }
+
+    .quantity-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .cart-item {
+      background: white;
+      border-radius: 12px;
+      padding: 16px;
+      margin: 12px 16px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    }
+  </style>
+</head>
+<body>
+  
+  
+  
+
+  <div id="root"></div>
+  
+  <script>
+    window.__ICONS__ = {"ArrowLeft":"<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"m12 19-7-7 7-7\"/><path d=\"M19 12H5\"/></svg>","Reply":"<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><polyline points=\"9 14 4 9 9 4\"/><path d=\"M20 20v-7a4 4 0 0 0-4-4H4\"/></svg>","ShoppingCart":"<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"8\" cy=\"21\" r=\"1\"/><circle cx=\"19\" cy=\"21\" r=\"1\"/><path d=\"M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12\"/></svg>","MoreHorizontal":"<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"12\" cy=\"12\" r=\"1\"/><circle cx=\"19\" cy=\"12\" r=\"1\"/><circle cx=\"5\" cy=\"12\" r=\"1\"/></svg>","Star":"<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"#eab308\" stroke=\"#eab308\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><polygon points=\"12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2\"/></svg>","StarEmpty":"<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"#d1d5db\" stroke=\"#d1d5db\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><polygon points=\"12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2\"/></svg>","Truck":"<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"12\" height=\"12\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2\"/><path d=\"M15 18H9\"/><path d=\"M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14\"/><circle cx=\"17\" cy=\"18\" r=\"2\"/><circle cx=\"7\" cy=\"18\" r=\"2\"/></svg>","ChevronRight":"<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"m9 18 6-6-6-6\"/></svg>","Shield":"<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z\"/></svg>","Store":"<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7\"/><path d=\"M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8\"/><path d=\"M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4\"/><path d=\"M2 7h20\"/><path d=\"M22 7v3a2 2 0 0 1-2 2v0a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 16 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 12 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 8 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 4 12v0a2 2 0 0 1-2-2V7\"/></svg>","MessageCircle":"<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M7.9 20A9 9 0 1 0 4 16.1L2 22Z\"/></svg>","X":"<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M18 6 6 18\"/><path d=\"m6 6 12 12\"/></svg>","Minus":"<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M5 12h14\"/></svg>","Plus":"<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M5 12h14\"/><path d=\"M12 5v14\"/></svg>"};
+    window.__CHECKOUT_URL__ = "checkout.html";
+    window.__PRODUCT_IMAGE_MAP__ = {"main":"","Camiseta Oversized Streetwear":"","sp-1780189862257":"https://aquarahome.casa/af75c071-4ab5-4b29-9696-869f5cf3e390.webp","chuveiro":"https://aquarahome.casa/af75c071-4ab5-4b29-9696-869f5cf3e390.webp","Chuveiro Digital Premium — Aquara Spa Home":"https://aquarahome.casa/af75c071-4ab5-4b29-9696-869f5cf3e390.webp"};
+  </script>
+  
+  <script>
+    // Helper para criar ícones SVG
+    const Icon = (name, className = '') => {
+      const span = document.createElement('span');
+      span.className = className;
+      span.innerHTML = window.__ICONS__[name];
+      return span;
+    };
+
+    function parseMoney(value) {
+      if (typeof value === 'number') return isFinite(value) ? value : 0;
+      const raw = String(value ?? '').trim().replace(/[^0-9,.-]/g, '');
+      if (!raw) return 0;
+      const normalized = raw.includes(',') ? raw.replace(/\./g, '').replace(',', '.') : raw;
+      const parsed = parseFloat(normalized);
+      return isFinite(parsed) ? parsed : 0;
+    }
+
+    function lookupCartImage(item) {
+      const map = window.__PRODUCT_IMAGE_MAP__ || {};
+      const keys = [item && item.productId, item && item.id, item && item.slug, item && item.title];
+      for (const key of keys) {
+        if (key && map[String(key)]) return map[String(key)];
+      }
+      return '';
+    }
+
+    function readCartItems() {
+      const sources = [];
+      try {
+        if (typeof window.name === 'string' && window.name.indexOf('__cart__:') === 0) {
+          sources.push(window.name.slice('__cart__:'.length));
+        }
+      } catch (e) {}
+      try {
+        const params = new URLSearchParams(window.location.search || '');
+        const fromUrl = params.get('cart');
+        if (fromUrl) sources.push(fromUrl);
+      } catch (e) {}
+      try { if (window.__INIT_CART__ != null) sources.push(JSON.stringify(window.__INIT_CART__)); } catch (e) {}
+      try { sources.push(sessionStorage.getItem('cartItems')); } catch (e) {}
+      try { sources.push(localStorage.getItem('cartItems')); } catch (e) {}
+      for (const raw of sources) {
+        if (!raw) continue;
+        try {
+          const parsed = typeof raw === 'string' ? JSON.parse(raw) : raw;
+          if (Array.isArray(parsed) && parsed.length) return parsed;
+        } catch (e) {}
+      }
+      return [];
+    }
+
+    // Carregar e VALIDAR carrinho do localStorage
+    let cartItems = readCartItems()
+      .filter(item => item && item.price !== undefined && item.price !== null)
+      .map(item => ({
+        ...item,
+        selected: item.selected !== false,
+        price: parseMoney(item.price),
+        originalPrice: parseMoney(item.originalPrice || item.price),
+        quantity: parseInt(item.quantity) || 1,
+        title: (item.title && item.title.trim() && item.title.trim() !== 'Produto')
+          ? item.title
+          : ((function(){ try { return localStorage.getItem('lastProductTitle') || ''; } catch(e){ return ''; } })() || item.title || 'Produto'),
+        variations: item.variations || {},
+        mainImage: item.mainImage || item.image || lookupCartImage(item) || 'https://via.placeholder.com/80',
+        image: item.image || item.mainImage || lookupCartImage(item) || 'https://via.placeholder.com/80'
+      }));
+
+    // Persistir versão normalizada para que checkout.html receba os campos corretos
+    try { window.name = '__cart__:' + JSON.stringify(cartItems); } catch (e) {}
+    try { sessionStorage.setItem('cartItems', JSON.stringify(cartItems)); } catch (e) {}
+    try { localStorage.setItem('cartItems', JSON.stringify(cartItems)); } catch (e) {}
+
+    // BLOQUEAR ACESSO SE CARRINHO ESTIVER VAZIO
+    if (cartItems.length === 0) {
+      window.location.href = 'index.html';
+    }
+
+    // Função para salvar carrinho
+    function saveCart() {
+      try { window.name = '__cart__:' + JSON.stringify(cartItems); } catch (e) {}
+      try { localStorage.setItem('cartItems', JSON.stringify(cartItems)); } catch (e) {}
+      try { sessionStorage.setItem('cartItems', JSON.stringify(cartItems)); } catch (e) {}
+    }
+
+    // Função para calcular total
+    function calculateTotal() {
+      return cartItems
+        .filter(item => item.selected)
+        .reduce((sum, item) => {
+          const price = parseFloat(item.price) || 0;
+          const qty = parseInt(item.quantity) || 1;
+          return sum + (price * qty);
+        }, 0);
+    }
+
+    // Função para contar itens selecionados
+    function getSelectedCount() {
+      return cartItems.filter(item => item.selected).length;
+    }
+
+    // Função para renderizar carrinho
+    function renderCart() {
+      const container = document.getElementById('cart-items');
+      const emptyState = document.getElementById('empty-state');
+      const footer = document.getElementById('cart-footer');
+
+      if (cartItems.length === 0) {
+        container.style.display = 'none';
+        emptyState.style.display = 'flex';
+        footer.style.display = 'none';
+        document.getElementById('cart-count').textContent = '0';
+        return;
+      }
+
+      container.style.display = 'block';
+      emptyState.style.display = 'none';
+      footer.style.display = 'block';
+      document.getElementById('cart-count').textContent = cartItems.length;
+
+      container.innerHTML = '';
+
+      cartItems.forEach((item, index) => {
+        try {
+          // Valores com fallback
+          const itemTitle = item.title || 'Produto sem título';
+          const itemImage = item.mainImage || 'https://via.placeholder.com/80';
+          const itemPrice = parseFloat(item.price) || 0;
+          const itemQuantity = parseInt(item.quantity) || 1;
+
+          const itemDiv = document.createElement('div');
+          itemDiv.className = 'cart-item flex gap-3';
+
+          // Checkbox
+          const checkbox = document.createElement('input');
+          checkbox.type = 'checkbox';
+          checkbox.checked = item.selected !== false;
+          checkbox.className = 'custom-checkbox mt-2';
+          checkbox.onchange = () => {
+            cartItems[index].selected = checkbox.checked;
+            saveCart();
+            updateFooter();
+          };
+
+          // Imagem com fallback para erro
+          const img = document.createElement('img');
+          img.src = itemImage;
+          img.alt = itemTitle;
+          img.className = 'w-20 h-20 object-cover rounded-lg flex-shrink-0';
+          img.onerror = function() {
+            this.onerror = null;
+            const placeholder = document.createElement('div');
+            placeholder.style.cssText = 'width:80px;height:80px;background:#f3f4f6;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;';
+            placeholder.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>';
+            this.parentNode.replaceChild(placeholder, this);
+          };
+
+          // Info do produto
+          const infoDiv = document.createElement('div');
+          infoDiv.className = 'flex-1 min-w-0';
+
+          const title = document.createElement('h3');
+          title.className = 'text-sm font-medium text-gray-900 mb-1';
+          title.style.display = '-webkit-box';
+          title.style.webkitLineClamp = '2';
+          title.style.webkitBoxOrient = 'vertical';
+          title.style.overflow = 'hidden';
+          title.textContent = itemTitle;
+          infoDiv.appendChild(title);
+
+          // Variações
+          if (item.variations && Object.keys(item.variations).length > 0) {
+            const variationsText = Object.entries(item.variations)
+              .map(([key, value]) => value)
+              .join(' / ');
+            const variationsP = document.createElement('p');
+            variationsP.className = 'text-xs text-gray-500 mb-2';
+            variationsP.textContent = variationsText;
+            infoDiv.appendChild(variationsP);
+          }
+
+          // Container para preço e quantidade (na mesma linha)
+          const priceQuantityDiv = document.createElement('div');
+          priceQuantityDiv.className = 'flex items-center justify-between';
+
+          // Preço
+          const price = document.createElement('span');
+          price.className = 'text-base font-semibold text-[#FE2C55]';
+          price.textContent = 'R$ ' + itemPrice.toFixed(2).replace('.', ',');
+
+          // Controles de quantidade
+          const quantityDiv = document.createElement('div');
+          quantityDiv.className = 'flex items-center gap-2.5';
+
+          const minusBtn = document.createElement('button');
+          minusBtn.className = 'quantity-btn';
+          minusBtn.textContent = '−';
+          minusBtn.onclick = () => {
+            if (cartItems[index].quantity > 1) {
+              cartItems[index].quantity--;
+              saveCart();
+              renderCart();
+            } else {
+              // Remove item from cart when quantity reaches 0
+              cartItems.splice(index, 1);
+              saveCart();
+              if (cartItems.length === 0) {
+                window.location.href = 'index.html';
+              } else {
+                renderCart();
+              }
+            }
+          };
+
+          const quantitySpan = document.createElement('span');
+          quantitySpan.className = 'text-sm font-normal min-w-[16px] text-center';
+          quantitySpan.style.color = '#000000';
+          quantitySpan.textContent = itemQuantity;
+
+          const plusBtn = document.createElement('button');
+          plusBtn.className = 'quantity-btn';
+          plusBtn.textContent = '+';
+          plusBtn.onclick = () => {
+            cartItems[index].quantity++;
+            saveCart();
+            renderCart();
+          };
+
+          quantityDiv.appendChild(minusBtn);
+          quantityDiv.appendChild(quantitySpan);
+          quantityDiv.appendChild(plusBtn);
+
+          priceQuantityDiv.appendChild(price);
+          priceQuantityDiv.appendChild(quantityDiv);
+
+          infoDiv.appendChild(priceQuantityDiv);
+
+          itemDiv.appendChild(checkbox);
+          itemDiv.appendChild(img);
+          itemDiv.appendChild(infoDiv);
+
+          container.appendChild(itemDiv);
+        } catch (error) {
+          console.error('Erro ao renderizar item:', index, error);
+        }
+      });
+
+      updateFooter();
+    }
+
+    // Função para atualizar footer
+    function updateFooter() {
+      const total = calculateTotal();
+      const selectedCount = getSelectedCount();
+      document.getElementById('total-price').textContent = 'R$ ' + total.toFixed(2).replace('.', ',');
+      document.getElementById('checkout-count').textContent = '(' + selectedCount + ')';
+    }
+
+    // Função para finalizar compra
+    function handleCheckout() {
+      const selectedItems = cartItems.filter(item => item.selected);
+      if (selectedItems.length === 0) {
+        alert('Selecione pelo menos um item para finalizar a compra');
+        return;
+      }
+      
+      // Verificar se usa checkout interno ou externo
+      const useInternal = true;
+      const externalUrl = '';
+      
+      if (useInternal) {
+        window.location.href = 'checkout.html';
+      } else {
+        if (externalUrl) {
+          const url = externalUrl.startsWith('http') ? externalUrl : 'https://' + externalUrl;
+          window.location.href = url;
+        } else {
+          alert('Link de checkout externo não configurado');
+        }
+      }
+    }
+
+    // Renderizar página
+    document.addEventListener('DOMContentLoaded', () => {
+      const root = document.getElementById('root');
+      
+      root.innerHTML = `
+        <!-- Header -->
+        <div class="sticky top-0 z-20 bg-white px-4 py-3 flex items-center gap-3">
+          <button onclick="if (typeof window.handleBackClick === 'function') { window.handleBackClick(); } else { window.location.href='index.html'; }">
+            <img src="assets/back-arrow.png" alt="Voltar" class="h-5 w-auto" style="object-fit: contain;" draggable="false" />
+          </button>
+          <h1 class="text-lg font-semibold text-gray-900">Carrinho (<span id="cart-count">0</span>)</h1>
+        </div>
+
+        <!-- Cart Items -->
+        <div id="cart-items" class="flex-1 overflow-y-auto pb-32" style="background: #f5f5f5;"></div>
+
+        <!-- Empty State -->
+        <div id="empty-state" class="flex-1 flex flex-col items-center justify-center p-8 text-center" style="display:none; background: #f5f5f5;">
+          <div class="mb-4"><svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg></div>
+          <h2 class="text-xl font-semibold text-gray-900 mb-2">Seu carrinho está vazio</h2>
+          <p class="text-gray-500 mb-6">Adicione produtos para começar suas compras</p>
+          <button onclick="window.location.href='index.html'" class="bg-[#FE2C55] text-white px-6 py-3 rounded-lg font-medium">
+            Continuar comprando
+          </button>
+        </div>
+
+        <!-- Footer -->
+        <div id="cart-footer" class="fixed bottom-0 left-0 right-0 bg-white shadow-lg" style="display:none; border-top: 1px solid #e5e7eb;">
+          <div class="max-w-[480px] mx-auto px-4 py-4">
+            <div class="flex items-baseline justify-between mb-3">
+              <span class="text-sm text-gray-600">Total</span>
+              <span id="total-price" class="text-2xl font-bold text-[#FE2C55]">R$ 0,00</span>
+            </div>
+            <button onclick="handleCheckout()" class="w-full bg-[#FE2C55] text-white py-3.5 rounded-full font-medium text-base">
+              Finalizar compra <span id="checkout-count">(0)</span>
+            </button>
+          </div>
+        </div>
+      `;
+
+      renderCart();
+    });
+  </script>
+  
+</body>
+</html>
